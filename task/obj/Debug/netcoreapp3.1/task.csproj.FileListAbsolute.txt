@@ -1,0 +1,11 @@
+D:\task\task\bin\Debug\netcoreapp3.1\task.exe
+D:\task\task\bin\Debug\netcoreapp3.1\task.deps.json
+D:\task\task\bin\Debug\netcoreapp3.1\task.runtimeconfig.json
+D:\task\task\bin\Debug\netcoreapp3.1\task.runtimeconfig.dev.json
+D:\task\task\bin\Debug\netcoreapp3.1\task.dll
+D:\task\task\bin\Debug\netcoreapp3.1\task.pdb
+D:\task\task\obj\Debug\netcoreapp3.1\task.csprojAssemblyReference.cache
+D:\task\task\obj\Debug\netcoreapp3.1\task.AssemblyInfoInputs.cache
+D:\task\task\obj\Debug\netcoreapp3.1\task.AssemblyInfo.cs
+D:\task\task\obj\Debug\netcoreapp3.1\task.dll
+D:\task\task\obj\Debug\netcoreapp3.1\task.pdb
