@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace task
 {
@@ -37,9 +38,11 @@ namespace task
                     break;
                 case 3:
                     Asynchronous_Single_Threaded(countMatrix, rowsMatrix);
+                    Thread.Sleep(100000);
                     break;
                 case 4:
                     Asynchronous_Multithreaded(countMatrix, rowsMatrix);
+                    Thread.Sleep(100000);
                     break;
             }
         }
@@ -48,6 +51,8 @@ namespace task
         {
             if (countMatrix != 0)
             {
+                DateTime now = DateTime.Now;
+
                 Matrix matrix = new Matrix();
 
                 for (int countCycle = 0; countCycle < countMatrix; countCycle++)
@@ -82,6 +87,9 @@ namespace task
                         Console.WriteLine();
                     }
                 }
+
+                TimeSpan time = DateTime.Now - now;
+                Console.WriteLine(time.ToString());
             }
         }
 
@@ -89,6 +97,8 @@ namespace task
         {
             if(countMatrix != 0)
             {
+                DateTime now = DateTime.Now;
+
                 Thread[] threads = new Thread[countMatrix];
 
                 for(int i = 0; i < countMatrix; i++)
@@ -100,82 +110,14 @@ namespace task
             }
         }
 
-        private static void Asynchronous_Single_Threaded(int countMatrix, int rowsMatrix)
+        private static async void Asynchronous_Single_Threaded(int countMatrix, int rowsMatrix)
         {
-            Matrix[] matrices = new Matrix[countMatrix];
-
-            for(int i = 0; i < countMatrix; i++)
-            {
-                matrices[i] = new Matrix();
-            }
-
-            for (int countCycle = 0; countCycle < countMatrix; countCycle++)
-            {
-                matrices[countCycle].matrix = matrices[countCycle].Create(rowsMatrix);
-
-                Console.WriteLine("\nMatrix number " + (countCycle + 1).ToString() + ":");
-
-                for (int i = 0; i < rowsMatrix; i++)
-                {
-                    for (int y = 0; y < rowsMatrix; y++)
-                    {
-                        Console.Write(matrices[countCycle].matrix[i, y].ToString());
-                        Console.Write(" ");
-                    }
-
-                    Console.WriteLine();
-                }
-            }
-
-            for(int countCycle = 0; countCycle < countMatrix; countCycle++)
-            {
-                Console.WriteLine("\nRevers matrix number " + (countCycle + 1).ToString() + ":");
-
-                double[,] myMatrixRevers = matrices[countCycle].Revers(matrices[countCycle].matrix, rowsMatrix);
-
-                for (int i = 0; i < rowsMatrix; i++)
-                {
-                    for (int y = 0; y < rowsMatrix; y++)
-                    {
-                        Console.Write(myMatrixRevers[i, y].ToString());
-                        Console.Write(" ");
-                    }
-
-                    Console.WriteLine();
-                }
-            }
+            await Task.Run(() => AsyncSingle(countMatrix, rowsMatrix));
         }
 
-        private static void Asynchronous_Multithreaded(int countMatrix, int rowsMatrix)
+        private static async void Asynchronous_Multithreaded(int countMatrix, int rowsMatrix)
         {
-            if (countMatrix != 0)
-            {
-                Thread[] threads = new Thread[countMatrix];
-                Matrix[] matrices = new Matrix[countMatrix];
-                globalCountMatrix = countMatrix;
-
-                for (int i = 0; i < countMatrix; i++)
-                {
-                    matrices[i] = new Matrix();
-                    matrices[i].rowsMatrix = rowsMatrix;
-                }
-
-                for (int i = 0; i < countMatrix; i++)
-                {
-                    threads[i] = new Thread(() => AsyncCreateMatrix(matrices));
-                    threads[i].Name = "Thread number " + (i + 1).ToString();
-                    threads[i].Start();
-                }
-
-                Thread.Sleep(1000);
-
-                for (int i = 0; i < countMatrix; i++)
-                {
-                    threads[i] = new Thread(() => AsyncReversMatrix(matrices));
-                    threads[i].Name = "Thread number " + (i + 10).ToString();
-                    threads[i].Start();
-                }
-            }
+            await Task.Run(() => AsyncCreate(countMatrix, rowsMatrix));
         }
 
         static void Sync(object rowsMatrix)
@@ -211,6 +153,54 @@ namespace task
 
                 Console.WriteLine();
             }
+        }
+
+        static void AsyncSingle(int countMatrix, int rowsMatrix)
+        {
+            DateTime now = DateTime.Now;
+
+            Matrix[] matrices = new Matrix[countMatrix];
+
+            for (int i = 0; i < countMatrix; i++)
+            {
+                matrices[i] = new Matrix();
+            }
+
+            for (int countCycle = 0; countCycle < countMatrix; countCycle++)
+            {
+                matrices[countCycle].matrix = matrices[countCycle].Create(rowsMatrix);
+
+                Console.WriteLine("\nMatrix number " + (countCycle + 1).ToString() + ":");
+
+                for (int i = 0; i < rowsMatrix; i++)
+                {
+                    for (int y = 0; y < rowsMatrix; y++)
+                    {
+                        Console.Write(matrices[countCycle].matrix[i, y].ToString());
+                        Console.Write(" ");
+                    }
+
+                    Console.WriteLine();
+                }
+
+                Console.WriteLine("\nRevers matrix number " + (countCycle + 1).ToString() + ":");
+
+                double[,] myMatrixRevers = matrices[countCycle].Revers(matrices[countCycle].matrix, rowsMatrix);
+
+                for (int i = 0; i < rowsMatrix; i++)
+                {
+                    for (int y = 0; y < rowsMatrix; y++)
+                    {
+                        Console.Write(myMatrixRevers[i, y].ToString());
+                        Console.Write(" ");
+                    }
+
+                    Console.WriteLine();
+                }
+            }
+
+            TimeSpan time = DateTime.Now - now;
+            Console.WriteLine(time.ToString());
         }
 
         static void AsyncCreateMatrix(Matrix[] matrix)
@@ -253,6 +243,40 @@ namespace task
                     Console.WriteLine();
                 }
             }
+        }
+
+        static void AsyncCreate(int countMatrix, int rowsMatrix)
+        {
+            DateTime now = DateTime.Now;
+
+            Thread[] threads = new Thread[countMatrix];
+            Matrix[] matrices = new Matrix[countMatrix];
+            globalCountMatrix = countMatrix;
+
+            for (int i = 0; i < countMatrix; i++)
+            {
+                matrices[i] = new Matrix();
+                matrices[i].rowsMatrix = rowsMatrix;
+            }
+
+            for (int i = 0; i < countMatrix; i++)
+            {
+                threads[i] = new Thread(() => AsyncCreateMatrix(matrices));
+                threads[i].Name = "Thread number " + (i + 1).ToString();
+                threads[i].Start();
+            }
+
+            Thread.Sleep(1000);
+
+            for (int i = 0; i < countMatrix; i++)
+            {
+                threads[i] = new Thread(() => AsyncReversMatrix(matrices));
+                threads[i].Name = "Thread number " + (i + 10).ToString();
+                threads[i].Start();
+            }
+
+            TimeSpan time = DateTime.Now - now;
+            Console.WriteLine(time.ToString());
         }
     }
 }
